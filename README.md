@@ -1,6 +1,6 @@
 # Generic Messenger System (GMS)
 
-This is a repository dedicated for group efforts on the CIS 401 final project. We are building a generic messenger system. Since, this is a large
+This is agt repository dedicated for group efforts on the CIS 401 final project. We are building a generic messenger system. Since, this is a large
 project, let's follow some standard while contributing to this project.
 
 ## Instructions
