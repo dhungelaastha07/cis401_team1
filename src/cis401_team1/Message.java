@@ -10,25 +10,27 @@ public class Message implements Serializable{
     private final String type;
     private final String userID[];
 
-    public Message(String type, String userId[], String text) {
+    public Message(String type, String userId[],  String text) {
         this.text = text;
         this.userID = userId;
         this.type = type;
-        this.id = ++count;	        
+        this.id = ++count;
+
     }
 
-    public String getText() {
+	public String getText() {
         return text;
     }
 
     public int getID(){
         return id;
     }
-	    
+    
     public String[] getUserID() {
         return userID;
     }
-	    
+    
+
     public String getType(){
         return type;
     }
