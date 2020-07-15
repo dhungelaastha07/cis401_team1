@@ -4,15 +4,17 @@ import java.io.Serializable;
 
 // must implement Serializable in order to be sent
 public class Message implements Serializable{
-    private static int count = 0;
+	private static int count = 0;
     private final int id;
     private final String text;
     private final String type;
+    private final String userID[];
 
-    public Message(String text) {
+    public Message(String type, String userId[], String text) {
         this.text = text;
-        this.type = "default";
-        this.id = ++count;
+        this.userID = userId;
+        this.type = type;
+        this.id = ++count;	        
     }
 
     public String getText() {
@@ -22,9 +24,14 @@ public class Message implements Serializable{
     public int getID(){
         return id;
     }
-
+	    
+    public String[] getUserID() {
+        return userID;
+    }
+	    
     public String getType(){
         return type;
     }
 }
+
 
