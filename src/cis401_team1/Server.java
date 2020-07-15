@@ -1,3 +1,4 @@
+
 package cis401_team1;
 
 import java.io.IOException;
@@ -25,7 +26,7 @@ public class server {
 			ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
 			ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
 			// message recieved;
-			processMessage(message, socket, oos);
+			//processMessage(message, socket, oos);
 
 			ois.close();
 			oos.close();
@@ -123,3 +124,4 @@ public class server {
 	}
 
 }
+
