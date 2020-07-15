@@ -10,6 +10,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 
 public class ContactPage extends JFrame implements ActionListener  {
 	
@@ -28,7 +29,7 @@ public class ContactPage extends JFrame implements ActionListener  {
 		
 		// contactname1
 		contactName1 = new JButton("Aastha");
-		contactName1.setBackground(new Color(246, 202, 131));
+		contactName1.setBackground(new Color(99, 173, 242));
 		contactName1.setOpaque(true);
 		contactName1.setBorderPainted(false);
 		contactName1.addActionListener(this);
@@ -38,7 +39,7 @@ public class ContactPage extends JFrame implements ActionListener  {
 
 		// contactname2
 		contactName2 = new JButton("Brandy");
-		contactName2.setBackground(new Color(246, 202, 131));
+		contactName2.setBackground(new Color(99, 173, 242));
 		contactName2.setOpaque(true);
 		contactName2.setBorderPainted(false);
 		contactName2.addActionListener(this);
@@ -48,7 +49,7 @@ public class ContactPage extends JFrame implements ActionListener  {
 
 		// contactname3
 		contactName3 = new JButton("Tim");
-		contactName3.setBackground(new Color(246, 202, 131));
+		contactName3.setBackground(new Color(99, 173, 242));
 		contactName3.setOpaque(true);
 		contactName3.setBorderPainted(false);
 		contactName3.addActionListener(this);
@@ -58,7 +59,7 @@ public class ContactPage extends JFrame implements ActionListener  {
 
 		// contactname4
 		contactName4 = new JButton("Nicolai");
-		contactName4.setBackground(new Color(246, 202, 131));
+		contactName4.setBackground(new Color(99, 173, 242));
 		contactName4.setOpaque(true);
 		contactName4.setBorderPainted(false);
 		contactName4.addActionListener(this);
@@ -68,7 +69,7 @@ public class ContactPage extends JFrame implements ActionListener  {
 		
 		//add button
 		addNewContact = new JButton("Add New Contacts");
-		addNewContact.setBackground(new Color(208, 211, 143));
+		addNewContact.setBackground(new Color(167, 204, 237));
 		addNewContact.setOpaque(true);
 		addNewContact.setBorderPainted(false);
 		addNewContact.addActionListener(this);
