@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 // must implement Serializable in order to be sent
 public class Message implements Serializable{
-    private static int count = 0;
+	private static int count = 0;
     private final int id;
     private final String text;
     private final String type;
@@ -15,7 +15,7 @@ public class Message implements Serializable{
         this.userID = userId;
         this.type = type;
         this.id = ++count;
-        
+
     }
 
 	public String getText() {
@@ -30,8 +30,10 @@ public class Message implements Serializable{
         return userID;
     }
     
+
     public String getType(){
         return type;
     }
 }
+
 
