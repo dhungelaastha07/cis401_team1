@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import javax.swing.JOptionPane;
+
 public class Client {
 
     public static void main(String[] args) throws IOException {
@@ -29,6 +31,11 @@ public class Client {
         // create a ObjectInputStream so we can read data from it.
         ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
         
+        User user1 = new User("aastha", "password1");
+        User user2 = new User("brandy", "password2");
+        User user3 = new User("tim", "password3");
+        User user4 = new User("nick", "password4");
+        
         Login log = new Login();
         //Login 
         int numUsers = 1;
@@ -44,16 +51,18 @@ public class Client {
        
 	       while(confirmation.getText() != "yes")
 	       {
-	    	   //display a message asking user to re-input login
+	    	   JOptionPane.showMessageDialog(null,"Error: Retry UserName and Password");
 	       }
 	       
 	    //once successfully logged on, open contact page 
     	//create Users for the contacts & link usernames and userID to the buttons
         new ContactPage();
+        
         //if contact user.getID() != current userID then they can message each other
         numUsers = 2;
         String [] userChat = new String[numUsers];
-        userChat[numUsers-2] = log.username.getText();
+        
+        userChat[numUsers-2] = confirmation.getUserID();
         // userChat[numUsers-1] = contactListUser;
         // String msg = get text from JTextFrame?
         
