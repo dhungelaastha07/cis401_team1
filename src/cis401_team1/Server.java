@@ -1,64 +1,93 @@
 package cis401_team1;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.lang.ClassNotFoundException;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.*;
 import java.util.*;
-import cis401_team1.*;
+import java.net.ServerSocket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.io.IOException;
 
-public class server {
-	private static ServerSocket server;
-	private static int port = 666;
-	private List<User> UserList;
+public class Server {
+	private static int port = 7777;
+	public List<User> UserList;
 	public String[][] chatHists = new String[4][4];
+
 	public static void main(String args[]) throws IOException, ClassNotFoundException {
-		server = new ServerSocket(port);
 
-		while (true) {
-			System.out.println("Awaiting Connection.../n");
-			Socket socket = server.accept();
-			System.out.println("Connection from " + socket + " found.../n");
-
-			ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-			ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-			// message recieved;
-			//processMessage(message, socket, oos);
-
-			ois.close();
-			oos.close();
-			socket.close();
+		Server serv = new Server();
+		try (ServerSocket listener = new ServerSocket(port)) {
+			System.out.println("The server is running...");
+			ExecutorService pool = Executors.newFixedThreadPool(20);
+			while (true) {
+				pool.execute(serv.new ClientConnect(listener.accept()));
+			}
 		}
+
 	}
 
-	private void processMessage(Message msg, Socket socket, ObjectOutputStream oos) {
-		if (msg.getType() == "login") {
-			if (userExists(UserList, msg.getUserID()[0])) {
-				sendClient(validateLogin(UserList, findUser(UserList, msg.getUserID()[0]), msg.getText()), socket, oos);
-			} else {
-				sendClient(new Message("confirm", msg.getUserID(), "no"), socket, oos);
-			}
+	private class ClientConnect implements Runnable {
+		private Socket socket;
+
+		ClientConnect(Socket socket) {
+			this.socket = socket;
 		}
 
-		if (msg.getType() == "chat") {
-			sendClient(updateChat(msg.getUserID(), msg.getText()), socket, oos);
-		}
-
-		if (msg.getType() == "logoff") {
-			sendClient(new Message("confirm", msg.getUserID(), "yes"), socket, oos);
-		}
-
-		if (msg.getType() == "quit") {
+		@Override
+		public void run() {
+			System.out.println("Connected: " + socket);
 			try {
-				server.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			System.out.println("Shutting down server.../n");
-		}
+				InputStream in = socket.getInputStream();
+				ObjectInputStream objectInputStream = new ObjectInputStream(in);
+				Message msg = (Message) objectInputStream.readObject();
+				System.out.println(msg.getType());
+				while (true) {
 
+					if (msg.getType() == "login") {
+						if (userExists(UserList, msg.getUserID()[0])) {
+							sendClient(validateLogin(UserList, findUser(UserList, msg.getUserID()[0]), msg.getText()),
+									socket);
+						} else {
+							sendClient(new Message("confirm", msg.getUserID(), "no"), socket);
+						}
+					}
+
+					if (msg.getType() == "chat") {
+						sendClient(updateChat(msg.getUserID(), msg.getText()), socket);
+					}
+
+					if (msg.getType() == "logoff") {
+						try {
+							socket.close();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						sendClient(new Message("confirm", msg.getUserID(), "yes"), socket);
+					}
+
+					if (msg.getType() == "quit") {
+						try {
+							socket.close();
+							// server.close();
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+						System.out.println("Shutting down server.../n");
+					}
+
+				}
+			} catch (Exception e) {
+				System.out.println("Error:" + socket);
+			} finally {
+				try {
+					socket.close();
+				} catch (IOException e) {
+				}
+				System.out.println("Closed: " + socket);
+			}
+		}
 	}
 
 	private boolean userExists(List<User> listOfUsers, String testName) {
@@ -92,19 +121,20 @@ public class server {
 		}
 	}
 
-	private void sendClient(Message outcome, Socket socket, ObjectOutputStream oos) {
+	private void sendClient(Message outcome, Socket socket) {
 		try {
+			ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
 			oos.writeObject(outcome);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private Message updateChat(String users[], String msgText) {
 		// Take in coming messages and add them to both users version of the chat
 		// history.
 		// Or simply send unchanged history if no message
-		
+
 		// convert user IDs to ints
 		int user1 = Integer.parseInt(users[0]);
 		int user2 = Integer.parseInt(users[1]);
@@ -123,3 +153,17 @@ public class server {
 	}
 
 }
+/**
+ * public class echoThread extends Thread { protected Socket socket;
+ * 
+ * public void EchoThread(Socket clientSocket) { this.socket = clientSocket; }
+ * 
+ * public void run() { InputStream inp = null; BufferedReader brinp = null;
+ * DataOutputStream out = null; try { inp = socket.getInputStream(); brinp = new
+ * BufferedReader(new InputStreamReader(inp)); out = new
+ * DataOutputStream(socket.getOutputStream()); } catch (IOException e) { return;
+ * } String line; while (true) { try { line = brinp.readLine(); if ((line ==
+ * null) || line.equalsIgnoreCase("QUIT")) { socket.close(); return; } else {
+ * out.writeBytes(line + "\n\r"); out.flush(); } } catch (IOException e) {
+ * e.printStackTrace(); return; } } } }
+ **/
