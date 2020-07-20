@@ -10,11 +10,26 @@ import java.util.concurrent.Executors;
 import java.io.IOException;
 
 public class Server {
+	private static ServerSocket server;
 	private static int port = 7777;
-	public List<User> UserList;
+	private List<User> UserList;
 	public String[][] chatHists = new String[4][4];
 
-	public static void main(String args[]) throws IOException, ClassNotFoundException {
+		while (true) {
+			System.out.println("Awaiting Connection...\n");
+			Socket socket = server.accept();
+			System.out.println("Connection from " + socket + " found.../n");
+
+			ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+			ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+			// message recieved;
+			//processMessage(message, socket, oos);
+
+			ois.close();
+			oos.close();
+			socket.close();
+		}
+	}
 
 		Server serv = new Server();
 		try (ServerSocket listener = new ServerSocket(port)) {
