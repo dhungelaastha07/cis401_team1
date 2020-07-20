@@ -7,7 +7,6 @@ import java.util.*;
 import java.net.ServerSocket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.io.IOException;
 
 public class Server {
 	private static int port = 7777;
@@ -41,42 +40,36 @@ public class Server {
 				InputStream in = socket.getInputStream();
 				ObjectInputStream objectInputStream = new ObjectInputStream(in);
 				Message msg = (Message) objectInputStream.readObject();
+				OutputStream outputStream = socket.getOutputStream();
+				ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
+				
 				System.out.println(msg.getType());
 				while (true) {
-
 					if (msg.getType() == "login") {
 						if (userExists(UserList, msg.getUserID()[0])) {
-							sendClient(validateLogin(UserList, findUser(UserList, msg.getUserID()[0]), msg.getText()),
-									socket);
+							objectOutputStream.writeObject((validateLogin(UserList, findUser(UserList, msg.getUserID()[0]), msg.getText())));
 						} else {
-							sendClient(new Message("confirm", msg.getUserID(), "no"), socket);
+							objectOutputStream.writeObject(new Message("confirm", msg.getUserID(), "no"));
 						}
 					}
 
 					if (msg.getType() == "chat") {
-						sendClient(updateChat(msg.getUserID(), msg.getText()), socket);
+						System.out.println("TypeFound: chat");
+						objectOutputStream.writeObject(updateChat(msg.getUserID(), msg.getText()));
 					}
 
 					if (msg.getType() == "logoff") {
-						try {
-							socket.close();
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						sendClient(new Message("confirm", msg.getUserID(), "yes"), socket);
+						objectOutputStream.writeObject(new Message("confirm", msg.getUserID(), "yes"));
+						break;
+						
 					}
 
 					if (msg.getType() == "quit") {
-						try {
-							socket.close();
-							// server.close();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
 						System.out.println("Shutting down server.../n");
+						break;
 					}
-
+					System.out.println("TypeFound: chat");
+					objectOutputStream.writeObject(updateChat(msg.getUserID(), msg.getText()));
 				}
 			} catch (Exception e) {
 				System.out.println("Error:" + socket);
@@ -121,6 +114,7 @@ public class Server {
 		}
 	}
 
+	/**
 	private void sendClient(Message outcome, Socket socket) {
 		try {
 			ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
@@ -129,12 +123,12 @@ public class Server {
 			e.printStackTrace();
 		}
 	}
-
+**/
 	private Message updateChat(String users[], String msgText) {
 		// Take in coming messages and add them to both users version of the chat
 		// history.
 		// Or simply send unchanged history if no message
-
+		System.out.println("Working on chat history");
 		// convert user IDs to ints
 		int user1 = Integer.parseInt(users[0]);
 		int user2 = Integer.parseInt(users[1]);
