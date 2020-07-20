@@ -1,5 +1,3 @@
-package cis401_team1;
-
 import java.io.Serializable;
 
 // must implement Serializable in order to be sent

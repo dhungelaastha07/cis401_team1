@@ -1,4 +1,3 @@
-package cis401_team1;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,7 +11,7 @@ import javax.swing.JSeparator;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
-public class ContactPage extends JFrame implements ActionListener  {
+public class ContactPage implements ActionListener  {
 	
 	JPanel contactPanel;
 	JLabel titleLabel;
@@ -78,13 +77,11 @@ public class ContactPage extends JFrame implements ActionListener  {
 		// adding padding
 		Border padding = BorderFactory.createEmptyBorder(10, 10, 10, 10);
 		contactPanel.setBorder(padding);
-
-		// panel setup
-		add(contactPanel);
-		setTitle("Generic Messenger System");
-		setSize(400, 400);
-		setVisible(true);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+	
+	JPanel getPanel() {
+		
+		return this.contactPanel;
 	}
 		
 		public void actionPerformed(ActionEvent e) {
