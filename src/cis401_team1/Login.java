@@ -1,16 +1,21 @@
+package cis401_team1;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 
-public class Login extends JFrame implements ActionListener {
+public class Login implements ActionListener {
+	Client activeClient;
 	JPanel loginPanel;
 	JLabel titleLabel, usernameLabel, passwordLabel, error;
 	JTextField username;
 	JPasswordField password;
-	JButton login, signup;
+	JButton login;
 
-	Login() {
+	Login(Client _activeClient) {
+		this.activeClient = _activeClient;
 		loginPanel = new JPanel(new GridLayout(9, 0));
 		
 		// title
@@ -45,31 +50,16 @@ public class Login extends JFrame implements ActionListener {
 		login.setBorderPainted(false);
 		login.addActionListener(this);
 		loginPanel.add(login);
-		
-		
-		
-		// signup
-		signup = new JButton("Signup");
-		signup.setBackground(new Color(167, 204, 237));
-		signup.setOpaque(true);
-		signup.setBorderPainted(false);
-		signup.addActionListener(this);
-		loginPanel.add(signup);
-		
-		
-		
-		
+			
 
 		// adding padding
 		Border padding = BorderFactory.createEmptyBorder(10, 10, 10, 10);
 		loginPanel.setBorder(padding);
 
-		// panel setup
-		add(loginPanel);
-		setTitle("Generic Messenger System");
-		setSize(400, 400);
-		setVisible(true);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+	
+	JPanel getPanel() {
+		return this.loginPanel;
 	}
 
 	// TODO:need to connect to the server logic
@@ -81,19 +71,19 @@ public class Login extends JFrame implements ActionListener {
 		
 		if(!usernameInput.isEmpty() && !passwordInput.isEmpty()) {
 			if(e.getActionCommand().equals("Login")) {
-				// Login flow
-				// Pass uname/password
-				// Wait for reply
-				// If valid, show contact list panel
-				// If error 
+				User thisUser = this.activeClient.getClientByUsername(usernameInput);
+				if(thisUser != null && passwordInput.equals(thisUser.getPassword())) {
+					try {
+						this.activeClient.setLoggedInUser(thisUser);
+					} catch (IOException e1) {
+						e1.printStackTrace();
+						error.setText("Something went wrong.");
+					}
+				} else {
+					error.setText("User does not exists.");
+				}
 				
-			} else {
-				// Signup flow
-				// Pass uname/password
-				// Wait for reply
-				// If valid, show contact list panel
-				// If error 
-			}
+			} 
 		} else {
 			error.setText("Please fill up both fields");
 		}

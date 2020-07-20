@@ -1,10 +1,10 @@
 package cis401_team1;
-
 public class User {
-	 private static int count = -1;
+	private static int count = -1;
 	private int userID;
 	private String username;
 	private String password;
+	
 
 	public User(String userName, String passWord) {
 		this.username = userName;
