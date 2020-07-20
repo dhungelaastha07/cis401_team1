@@ -1,3 +1,4 @@
+package cis401_team1;
 import javax.swing.*;
 
 public class ClientDriver {
