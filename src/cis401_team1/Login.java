@@ -2,6 +2,9 @@ package cis401_team1;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -71,18 +74,12 @@ public class Login implements ActionListener {
 		
 		if(!usernameInput.isEmpty() && !passwordInput.isEmpty()) {
 			if(e.getActionCommand().equals("Login")) {
-				User thisUser = this.activeClient.getClientByUsername(usernameInput);
-				if(thisUser != null && passwordInput.equals(thisUser.getPassword())) {
-					try {
-						this.activeClient.setLoggedInUser(thisUser);
-					} catch (IOException e1) {
-						e1.printStackTrace();
-						error.setText("Something went wrong.");
-					}
-				} else {
-					error.setText("User does not exists.");
+				try {
+					activeClient.output.writeObject(new Message("login", new String[] {usernameInput}, passwordInput));
+				} catch (IOException e1) {
+					error.setText("Something went wrong.");
+					e1.printStackTrace();
 				}
-				
 			} 
 		} else {
 			error.setText("Please fill up both fields");

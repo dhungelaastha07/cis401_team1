@@ -13,10 +13,17 @@ public class Server {
 	private static int port = 7777;
 	public List<User> UserList;
 	public String[][] chatHists = new String[4][4];
+	public int resHistory = -1;
+	
+	public Server() {
+		UserList = new ArrayList<User>();
+		UserList.add(new User("Aastha", "1234"));
+		UserList.add(new User("Tim", "1234"));
+	}
 
 	public static void main(String args[]) throws IOException, ClassNotFoundException {
-
 		Server serv = new Server();
+		
 		try (ServerSocket listener = new ServerSocket(port)) {
 			System.out.println("The server is running...");
 			ExecutorService pool = Executors.newFixedThreadPool(20);
@@ -29,9 +36,11 @@ public class Server {
 
 	private class ClientConnect implements Runnable {
 		private Socket socket;
+		ObjectOutputStream oos;
 
-		ClientConnect(Socket socket) {
+		ClientConnect(Socket socket) throws IOException {
 			this.socket = socket;
+			this.oos  = new ObjectOutputStream(socket.getOutputStream());
 		}
 
 		@Override
@@ -40,43 +49,39 @@ public class Server {
 			try {
 				InputStream in = socket.getInputStream();
 				ObjectInputStream objectInputStream = new ObjectInputStream(in);
-				Message msg = (Message) objectInputStream.readObject();
-				System.out.println(msg.getType());
-				while (true) {
-
-					if (msg.getType() == "login") {
-						if (userExists(UserList, msg.getUserID()[0])) {
-							sendClient(validateLogin(UserList, findUser(UserList, msg.getUserID()[0]), msg.getText()),
-									socket);
+				Message msg = null;
+				while (msg == null || !msg.getType().equals("quit")) {
+					msg = (Message) objectInputStream.readObject();
+					System.out.println(msg);
+					if (msg.getType().equals("login")) {
+						User currentuser = findUser(UserList, msg.getUsers()[0]);
+						if (currentuser != null) {
+							sendClient(validateLogin(currentuser, msg.getText()), oos);
 						} else {
-							sendClient(new Message("confirm", msg.getUserID(), "no"), socket);
+							sendClient(new Message("confirm", msg.getUsers(), "no"), oos);
 						}
-					}
-
-					if (msg.getType() == "chat") {
-						sendClient(updateChat(msg.getUserID(), msg.getText()), socket);
-					}
-
-					if (msg.getType() == "logoff") {
+					} else if (msg.getType().equals("chat")) {
+						sendClient(updateChat(msg.getUsers(), msg.getText()), oos);
+					}else if (msg.getType().equals("logoff")) {
 						try {
 							socket.close();
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
-						sendClient(new Message("confirm", msg.getUserID(), "yes"), socket);
-					}
-
-					if (msg.getType() == "quit") {
+						sendClient(new Message("confirm", msg.getUsers(), "yes"), oos);
+					} else if (msg.getType().equals("quit")) {
 						try {
 							socket.close();
 							// server.close();
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
-						System.out.println("Shutting down server.../n");
+						System.out.println("Shutting down server...\n");
+					} else {
+						System.out.println("Invalid message type.....\n");
+						sendClient(msg, oos);
 					}
-
 				}
 			} catch (Exception e) {
 				System.out.println("Error:" + socket);
@@ -90,65 +95,58 @@ public class Server {
 		}
 	}
 
-	private boolean userExists(List<User> listOfUsers, String testName) {
+
+	private User findUser(List<User> listOfUsers, String testName) {
 		for (int i = 0; i < listOfUsers.size(); i++) {
 			if (listOfUsers.get(i).getUsername().equals(testName)) {
-				return true;
+				return listOfUsers.get(i);
 			}
 		}
-		return false;
+		return null;
 	}
 
-	private int findUser(List<User> listOfUsers, String testName) {
-		for (int i = 0; i < listOfUsers.size(); i++) {
-			if (listOfUsers.get(i).getUsername().equals(testName)) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
-	private Message validateLogin(List<User> listOfUsers, int index, String password) {
-
-		String userID[];
-		userID = new String[1];
-		userID[0] = Integer.toString(index);
-
-		if (listOfUsers.get(index).getPassword().equals(password)) {
-			return new Message("confirm", userID, "no");
+	private Message validateLogin(User currentUser, String password) {
+		if (currentUser.getPassword().equals(password)) {
+			return new Message("login", new String[] {currentUser.getUsername()}, "yes");
 		} else {
-			return new Message("confirm", userID, "no");
+			return new Message("invalid", new String[] {currentUser.getUsername()}, "no");
 		}
 	}
 
-	private void sendClient(Message outcome, Socket socket) {
-		try {
-			ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-			oos.writeObject(outcome);
+	private void sendClient(Message outcome, ObjectOutputStream output) {
+		try {	
+			output.writeObject(outcome);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
 	private Message updateChat(String users[], String msgText) {
+		String[] sampleResponse = new String[] {
+				"Hello there, how's it going?",
+				"I am fine, thanks for asking",
+				"The weather is pleasent here",
+				"Alright, bye"
+		};
+		resHistory++;
 		// Take in coming messages and add them to both users version of the chat
 		// history.
 		// Or simply send unchanged history if no message
 
 		// convert user IDs to ints
-		int user1 = Integer.parseInt(users[0]);
-		int user2 = Integer.parseInt(users[1]);
-
+		int user1 = findUser(UserList, users[0]).getUserID();
+		int user2 = findUser(UserList, users[1]).getUserID();
+		
+		
 		// Update each chat history, only if message contains text
 		if (msgText != "") {
-
 			chatHists[user1][user2] = chatHists[user1][user2] + "\n" + users[user1] + ": " + msgText;
 			chatHists[user2][user1] = chatHists[user2][user1] + "\n" + users[user1] + ": " + msgText;
-
 		}
-
+		
+		
 		// Create message with new chat history
-		return new Message("chatHist", users, chatHists[user1][user2]);
+		return new Message("chat", users, sampleResponse[resHistory]);
 
 	}
 
