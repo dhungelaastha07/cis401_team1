@@ -1,6 +1,8 @@
 package cis401_team1;
+
 import java.io.*;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.Hashtable;
 import java.util.Scanner;
 
@@ -8,23 +10,24 @@ import javax.swing.*;
 import javax.swing.JOptionPane;
 
 public class Client {
+	ChatBox chatbox;
 	Socket socket;
 	JPanel latestPanel;
 	JFrame mainFrame;
-	User loggedInUser;
-	ObjectInputStream objectInputStream;
-	ObjectOutputStream objectOutputStream;
+	String loggedInUser;
+	String chattingWith;
+	String host = "localhost";
+	int port = 7777;
+	ObjectInputStream input;
+	ObjectOutputStream output;
 	Hashtable<String, User> userList;
 
-	public Client() {
-		this.socket = null;
+	public Client() throws UnknownHostException, IOException, ClassNotFoundException {
 		this.latestPanel = null;
 		this.loggedInUser = null;
-		this.objectInputStream = null;
-		this.objectOutputStream = null;
-		this.userList = new Hashtable<String, User>();
-		userList.put("aastha", new User("aastha", "1234"));
-		userList.put("safal", new User("safal", "1234"));
+		this.chattingWith = null;
+
+		// Connect to the ServerSocket at host:port
 
 		this.mainFrame = new JFrame();
 		JPanel loginPanel = new Login(this).getPanel();
@@ -34,35 +37,60 @@ public class Client {
 		mainFrame.setSize(400, 400);
 		mainFrame.setVisible(true);
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		this.socket = new Socket(host, port);
+		this.output = new ObjectOutputStream(this.socket.getOutputStream());
+		this.output.flush();
+		this.input = new ObjectInputStream(this.socket.getInputStream());
+
+		startRunning();
+	}
+
+	public void startRunning() throws IOException, ClassNotFoundException {
+		Message msg = null;
+
+		while (msg == null || !msg.getType().equals("quit")) {
+			msg = (Message) input.readObject();
+			System.out.println(msg);
+
+			if (msg.getType().equals("login")) {
+				this.setLoggedInUser(msg.getUsers()[0]);
+			} else if (msg.getType().equals("chat")) {
+				this.chatbox.updateChatPanel(msg.getText());
+			} else if (msg.getType().equals("logoff")) {
+
+			} else if (msg.getType().equals("quit")) {
+
+			} else {
+				System.out.println("Invalid message type.....\n");
+
+			}
+
+		}
 	}
 
 	public User getClientByUsername(String username) {
 		return this.userList.get(username);
 	}
 
-	public void setLoggedInUser(User _loggedInUser) throws IOException {
-		String host = "localhost";
-		int port = 7777;
+	public void setLoggedInUser(String _loggedInUser) throws IOException, ClassNotFoundException {
 		this.loggedInUser = _loggedInUser;
+		JPanel contactPanel = new ContactPage(this).getPanel();
+		this.setPanel(contactPanel);
+		this.latestPanel = contactPanel;
+	}
 
-		// Connect to the ServerSocket at host:port
-		this.socket = new Socket(host, port);
+	public void setChatScreen(String chattingWith) {
+		this.chatbox = new ChatBox(this);
+		this.chattingWith = chattingWith;
+		JPanel chatPanel = this.chatbox.getPanel();
+		this.setPanel(chatPanel);
+		this.latestPanel = chatPanel;
+	}
 
-		// Output stream socket.
-		OutputStream outputStream = socket.getOutputStream();
-		// Create object output stream from the output stream to send an object through
-		// it
-		this.objectOutputStream = new ObjectOutputStream(outputStream);
-
-		objectOutputStream.writeUTF("USER_ONLINE="+this.loggedInUser.getUsername());
-		objectOutputStream.flush();
-
-		// input stream from the connected socket to the server
-		InputStream inputStream = socket.getInputStream();
-		// create a ObjectInputStream so we can read data from it.
-		this.objectInputStream = new ObjectInputStream(inputStream);
-		System.out.print(objectInputStream.readUTF());
-		this.setPanel(new ContactPage().getPanel());
+	public void updateChatScreen(JPanel chatBox) {
+		this.setPanel(chatBox);
+		this.latestPanel = chatBox;
 	}
 
 	public void setPanel(JPanel panel) {
@@ -74,40 +102,12 @@ public class Client {
 	}
 
 	public static void main(String[] args) throws IOException {
-
-		Client x = new Client();
-
-		// Login
-//        int numUsers = 1;
-//        String [] userLogin = new String[numUsers];
-//        userLogin[numUsers-1] = log.username.getText();
-//        String pass = log.password.getText();
-//        Message login = new Message("login", userLogin, pass);
-		// objectOutputStream.writeObject(login);
-
-		// confirmation message
 		try {
-			// Message confirmation = (Message) objectInputStream.readObject();
-
-//	       while(confirmation.getText() != "yes")
-//	       {
-//	    	   JOptionPane.showMessageDialog(null,"Error: Retry UserName and Password");
-//	       }
-
-			// once successfully logged on, open contact page
-			// create Users for the contacts & link usernames and userID to the buttons
-			// new ContactPage();
-
-			// if contact user.getID() != current userID then they can message each other
-//        numUsers = 2;
-//        String [] userChat = new String[numUsers];
-
-		} catch (Exception e) {
-
+			Client x = new Client();
+		} catch (ClassNotFoundException | IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 
-		// logout
-//       Message logout = new Message("logout", user, "");
-		// socket.close();
 	}
 }

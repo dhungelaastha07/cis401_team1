@@ -9,9 +9,9 @@ public class Message implements Serializable{
     private final String type;
     private final String userID[];
 
-    public Message(String type, String userId[],  String text) {
+    public Message(String type, String users[],  String text) {
         this.text = text;
-        this.userID = userId;
+        this.userID = users;
         this.type = type;
         this.id = ++count;
 
@@ -25,13 +25,17 @@ public class Message implements Serializable{
         return id;
     }
     
-    public String[] getUserID() {
+    public String[] getUsers() {
         return userID;
     }
     
 
     public String getType(){
         return type;
+    }
+    
+    public String toString() {
+    	return this.type + "/" + this.text;
     }
 }
 
