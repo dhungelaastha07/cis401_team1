@@ -13,6 +13,14 @@ public class Server {
 	public List<User> UserList;
 	public String[][] chatHists = new String[4][4];
 
+	public Server() {
+		UserList = new ArrayList<User>();
+		UserList.add(new User("Aastha", "1234"));
+		UserList.add(new User("Brandy", "1234"));
+		UserList.add(new User("Tim", "1234"));
+		UserList.add(new User("Nicolai", "1234"));
+	}
+
 	public static void main(String args[]) throws IOException, ClassNotFoundException {
 
 		Server serv = new Server();
@@ -42,34 +50,36 @@ public class Server {
 				Message msg = (Message) objectInputStream.readObject();
 				OutputStream outputStream = socket.getOutputStream();
 				ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
-				
-				System.out.println(msg.getType());
+
 				while (true) {
-					if (msg.getType() == "login") {
-						if (userExists(UserList, msg.getUserID()[0])) {
-							objectOutputStream.writeObject((validateLogin(UserList, findUser(UserList, msg.getUserID()[0]), msg.getText())));
+					if (msg.getType().contentEquals("login")) {
+						System.out.println("TypeFound: login");
+						if (userExists(UserList, msg.getUsers()[0])) {
+							objectOutputStream.writeObject(
+									(validateLogin(UserList, findUser(UserList, msg.getUsers()[0]), msg.getText())));
 						} else {
-							objectOutputStream.writeObject(new Message("confirm", msg.getUserID(), "no"));
+							objectOutputStream.writeObject(new Message("confirm", msg.getUsers(), "no"));
 						}
 					}
 
-					if (msg.getType() == "chat") {
+					if (msg.getType().contentEquals("chat")) {
 						System.out.println("TypeFound: chat");
-						objectOutputStream.writeObject(updateChat(msg.getUserID(), msg.getText()));
+						objectOutputStream.writeObject(updateChat(msg.getUsers(), msg.getText()));
 					}
 
-					if (msg.getType() == "logoff") {
-						objectOutputStream.writeObject(new Message("confirm", msg.getUserID(), "yes"));
+					if (msg.getType().contentEquals("logoff")) {
+						System.out.println("TypeFound: logoff");
+						objectOutputStream.writeObject(new Message("confirm", msg.getUsers(), "yes"));
 						break;
-						
+
 					}
 
-					if (msg.getType() == "quit") {
+					if (msg.getType().contentEquals("quit")) {
+						System.out.println("TypeFound: quit");
 						System.out.println("Shutting down server.../n");
 						break;
 					}
-					System.out.println("TypeFound: chat");
-					objectOutputStream.writeObject(updateChat(msg.getUserID(), msg.getText()));
+					msg = (Message) objectInputStream.readObject();
 				}
 			} catch (Exception e) {
 				System.out.println("Error:" + socket);
@@ -108,22 +118,17 @@ public class Server {
 		userID[0] = Integer.toString(index);
 
 		if (listOfUsers.get(index).getPassword().equals(password)) {
-			return new Message("confirm", userID, "no");
+			return new Message("login", userID, "Yes");
 		} else {
-			return new Message("confirm", userID, "no");
+			return new Message("login", userID, "no");
 		}
 	}
 
 	/**
-	private void sendClient(Message outcome, Socket socket) {
-		try {
-			ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-			oos.writeObject(outcome);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-**/
+	 * private void sendClient(Message outcome, Socket socket) { try {
+	 * ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+	 * oos.writeObject(outcome); } catch (IOException e) { e.printStackTrace(); } }
+	 **/
 	private Message updateChat(String users[], String msgText) {
 		// Take in coming messages and add them to both users version of the chat
 		// history.
@@ -132,17 +137,27 @@ public class Server {
 		// convert user IDs to ints
 		int user1 = Integer.parseInt(users[0]);
 		int user2 = Integer.parseInt(users[1]);
+		System.out.println("Step 1");
+		if (chatHists[user1][user2] == null) {
+			chatHists[user1][user2] = "";
+		}
+		if (chatHists[user2][user1] == null) {
+			chatHists[user2][user1] = "";
+		}
 
 		// Update each chat history, only if message contains text
-		if (msgText != "") {
-
-			chatHists[user1][user2] = chatHists[user1][user2] + "\n" + users[user1] + ": " + msgText;
-			chatHists[user2][user1] = chatHists[user2][user1] + "\n" + users[user1] + ": " + msgText;
+		if (msgText != null) {
+			System.out.println("Step 2, updating");
+			chatHists[user1][user2] = chatHists[user1][user2] + "\n" + UserList.get(user1).getUsername() + ": "
+					+ msgText;
+			chatHists[user2][user1] = chatHists[user2][user1] + "\n" + UserList.get(user1).getUsername() + ": "
+					+ msgText;
 
 		}
 
 		// Create message with new chat history
-		return new Message("chatHist", users, chatHists[user1][user2]);
+		System.out.println("Message sent:" + chatHists[user1][user2]);
+		return new Message("chat", users, chatHists[user1][user2]);
 
 	}
 

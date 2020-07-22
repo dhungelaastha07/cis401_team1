@@ -3,6 +3,10 @@ import java.io.Serializable;
 
 // must implement Serializable in order to be sent
 public class Message implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private static int count = 0;
     private final int id;
     private final String text;

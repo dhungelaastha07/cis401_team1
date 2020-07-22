@@ -1,11 +1,10 @@
 package cis401_team1;
-import javax.swing.*;
 
 public class ClientDriver {
 	
 	
 	public static void main(String[] args) {
-		new ChatBox(null);
+		new ChatBox(null, null, null);
 //		JFrame mainFrame = new JFrame();
 //		JPanel loginPanel = new Login(new Client()).getPanel();
 //		mainFrame.add(loginPanel);
