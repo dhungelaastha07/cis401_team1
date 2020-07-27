@@ -150,8 +150,10 @@ public class Server {
 			System.out.println("Step 2, updating");
 			chatHists[user1][user2] = chatHists[user1][user2] + "\n" + UserList.get(user1).getUsername() + ": "
 					+ msgText;
-			chatHists[user2][user1] = chatHists[user2][user1] + "\n" + UserList.get(user1).getUsername() + ": "
-					+ msgText;
+			if (user1 != user2) {
+				chatHists[user2][user1] = chatHists[user2][user1] + "\n" + UserList.get(user1).getUsername() + ": "
+						+ msgText;
+			}
 
 		}
 
