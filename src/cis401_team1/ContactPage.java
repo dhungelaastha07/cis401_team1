@@ -6,12 +6,10 @@ import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
 
 public class ContactPage implements ActionListener {
 	Client activeClient;
@@ -89,11 +87,12 @@ public class ContactPage implements ActionListener {
 			// take user to chat with Aastha
 			this.activeClient.setChatScreen(command);
 		} else if (command.equals("Brandy")) {
-			// take user to chat with Brandy
+			this.activeClient.setChatScreen(command);
 		} else if (command.equals("Tim")) {
+			this.activeClient.setChatScreen(command);
 			// take user to chat with Tim
 		} else if (command.equals("Nicolai")) {
-			// take user to chat with Nicolai
+			this.activeClient.setChatScreen(command);
 		} else if (command.equals("Add New Contacts")) {
 			// add new contacts page
 		} else {

@@ -4,10 +4,7 @@ import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Hashtable;
-import java.util.Scanner;
-
 import javax.swing.*;
-import javax.swing.JOptionPane;
 
 public class Client {
 	ChatBox chatbox;
@@ -78,10 +75,12 @@ public class Client {
 		JPanel contactPanel = new ContactPage(this).getPanel();
 		this.setPanel(contactPanel);
 		this.latestPanel = contactPanel;
+		
 	}
 
 	public void setChatScreen(String chattingWith) {
-		this.chatbox = new ChatBox(this);
+		System.out.println("With: " + chattingWith);
+		this.chatbox = new ChatBox(this, this.loggedInUser, chattingWith);
 		this.chattingWith = chattingWith;
 		JPanel chatPanel = this.chatbox.getPanel();
 		this.setPanel(chatPanel);
